@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "deny": {
+      "Write": [
+        ".env",
+        ".env.*",
+        "appsettings.Development.json",
+        "appsettings.Production.json",
+        "secrets.json",
+        "*.pfx",
+        "*.key"
+      ],
+      "Read": [
+        "node_modules/**",
+        ".git/objects/**",
+        "dist/**",
+        "bin/**",
+        "obj/**",
+        ".angular/**"
+      ]
+    }
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "condition": "$(echo $FILE | grep -E '\\.cs$')",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "dotnet format --include $FILE 2>/dev/null || true",
+            "timeout": 30
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "condition": "$(echo $FILE | grep -E '\\.(ts|html|scss)$')",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd src/SleshWrites.Web && npx prettier --write $FILE 2>/dev/null || true",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}

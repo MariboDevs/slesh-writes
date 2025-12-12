@@ -1,0 +1,86 @@
+# .NET
+bin/
+obj/
+*.user
+*.userosscache
+*.suo
+*.cache
+*.dll
+*.exe
+*.pdb
+.vs/
+*.rsuser
+*.userprefs
+project.lock.json
+.nuget/
+*.nupkg
+packages/
+
+# ASP.NET
+appsettings.Development.json
+appsettings.Production.json
+secrets.json
+
+# Entity Framework
+*.mdf
+*.ldf
+
+# Angular
+node_modules/
+dist/
+.angular/
+.sass-cache/
+*.js.map
+*.css.map
+
+# Angular CLI
+.angular/cache/
+
+# IDEs
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Environment
+.env
+.env.*
+*.env
+
+# Azure
+.azure/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Test Results
+TestResults/
+coverage/
+lcov.info
+
+# Build
+publish/
+out/
+
+# Certificates
+*.pfx
+*.key
+*.pem
+*.crt
+
+# Claude Code local settings
+.claude/settings.local.json
