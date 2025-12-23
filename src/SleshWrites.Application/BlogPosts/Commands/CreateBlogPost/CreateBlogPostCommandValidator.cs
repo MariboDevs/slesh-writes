@@ -1,4 +1,5 @@
 using FluentValidation;
+using SleshWrites.Domain.Constants;
 
 namespace SleshWrites.Application.BlogPosts.Commands.CreateBlogPost;
 
@@ -11,11 +12,13 @@ public sealed class CreateBlogPostCommandValidator : AbstractValidator<CreateBlo
     {
         RuleFor(x => x.Title)
             .NotEmpty().WithMessage("Title is required.")
-            .MaximumLength(200).WithMessage("Title cannot exceed 200 characters.");
+            .MaximumLength(ValidationConstants.BlogPost.TitleMaxLength)
+            .WithMessage($"Title cannot exceed {ValidationConstants.BlogPost.TitleMaxLength} characters.");
 
         RuleFor(x => x.Content)
             .NotEmpty().WithMessage("Content is required.")
-            .MinimumLength(50).WithMessage("Content must be at least 50 characters.");
+            .MinimumLength(ValidationConstants.BlogPost.ContentMinLength)
+            .WithMessage($"Content must be at least {ValidationConstants.BlogPost.ContentMinLength} characters.");
 
         RuleFor(x => x.AuthorId)
             .NotEmpty().WithMessage("Author ID is required.");
@@ -24,7 +27,8 @@ public sealed class CreateBlogPostCommandValidator : AbstractValidator<CreateBlo
             .NotEmpty().WithMessage("Category ID is required.");
 
         RuleFor(x => x.Excerpt)
-            .MaximumLength(500).WithMessage("Excerpt cannot exceed 500 characters.")
+            .MaximumLength(ValidationConstants.BlogPost.ExcerptMaxLength)
+            .WithMessage($"Excerpt cannot exceed {ValidationConstants.BlogPost.ExcerptMaxLength} characters.")
             .When(x => x.Excerpt is not null);
 
         RuleFor(x => x.FeaturedImage)

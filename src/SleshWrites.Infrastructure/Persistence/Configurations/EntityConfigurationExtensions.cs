@@ -2,6 +2,7 @@ using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SleshWrites.Domain.Common;
+using SleshWrites.Domain.Constants;
 using SleshWrites.Domain.ValueObjects;
 
 namespace SleshWrites.Infrastructure.Persistence.Configurations;
@@ -25,7 +26,7 @@ public static class EntityConfigurationExtensions
             slugBuilder.Property(s => s.Value)
                 .HasColumnName("Slug")
                 .IsRequired()
-                .HasMaxLength(200);
+                .HasMaxLength(ValidationConstants.Slug.MaxLength);
 
             slugBuilder.HasIndex(s => s.Value)
                 .IsUnique();

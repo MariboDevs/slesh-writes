@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using SleshWrites.Domain.Constants;
 using SleshWrites.Domain.Entities;
 
 namespace SleshWrites.Infrastructure.Persistence.Configurations;
@@ -17,7 +18,7 @@ public sealed class TagConfiguration : IEntityTypeConfiguration<Tag>
 
         builder.Property(t => t.Name)
             .IsRequired()
-            .HasMaxLength(50);
+            .HasMaxLength(ValidationConstants.Tag.NameMaxLength);
 
         builder.ConfigureSlug(t => t.Slug);
 

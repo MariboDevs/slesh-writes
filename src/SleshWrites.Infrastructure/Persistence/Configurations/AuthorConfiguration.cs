@@ -2,6 +2,7 @@ using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using SleshWrites.Domain.Constants;
 using SleshWrites.Domain.Entities;
 
 namespace SleshWrites.Infrastructure.Persistence.Configurations;
@@ -27,16 +28,16 @@ public sealed class AuthorConfiguration : IEntityTypeConfiguration<Author>
 
         builder.Property(a => a.DisplayName)
             .IsRequired()
-            .HasMaxLength(100);
+            .HasMaxLength(ValidationConstants.Author.DisplayNameMaxLength);
 
         builder.Property(a => a.Email)
-            .HasMaxLength(256);
+            .HasMaxLength(ValidationConstants.Author.EmailMaxLength);
 
         builder.Property(a => a.Bio)
-            .HasMaxLength(1000);
+            .HasMaxLength(ValidationConstants.Author.BioMaxLength);
 
         builder.Property(a => a.AvatarUrl)
-            .HasMaxLength(2048);
+            .HasMaxLength(ValidationConstants.Author.AvatarUrlMaxLength);
 
         // Store social links as JSON with proper value comparer
         var dictionaryComparer = new ValueComparer<IReadOnlyDictionary<string, string>>(

@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using SleshWrites.Domain.Constants;
 using SleshWrites.Domain.Entities;
 
 namespace SleshWrites.Infrastructure.Persistence.Configurations;
@@ -17,12 +18,12 @@ public sealed class CategoryConfiguration : IEntityTypeConfiguration<Category>
 
         builder.Property(c => c.Name)
             .IsRequired()
-            .HasMaxLength(100);
+            .HasMaxLength(ValidationConstants.Category.NameMaxLength);
 
         builder.ConfigureSlug(c => c.Slug);
 
         builder.Property(c => c.Description)
-            .HasMaxLength(500);
+            .HasMaxLength(ValidationConstants.Category.DescriptionMaxLength);
 
         builder.Property(c => c.DisplayOrder)
             .IsRequired();

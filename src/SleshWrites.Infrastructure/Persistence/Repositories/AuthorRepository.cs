@@ -28,4 +28,12 @@ public sealed class AuthorRepository : RepositoryBase<Author>, IAuthorRepository
         return await DbSet
             .AnyAsync(a => a.AzureAdB2CId == azureAdB2CId, cancellationToken);
     }
+
+    public async Task<bool> HasBlogPostsAsync(
+        Guid authorId,
+        CancellationToken cancellationToken = default)
+    {
+        return await Context.Set<BlogPost>()
+            .AnyAsync(bp => bp.AuthorId == authorId, cancellationToken);
+    }
 }

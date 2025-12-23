@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using SleshWrites.Domain.Constants;
 using SleshWrites.Domain.Entities;
 
 namespace SleshWrites.Infrastructure.Persistence.Configurations;
@@ -17,7 +18,7 @@ public sealed class BlogPostConfiguration : IEntityTypeConfiguration<BlogPost>
 
         builder.Property(bp => bp.Title)
             .IsRequired()
-            .HasMaxLength(200);
+            .HasMaxLength(ValidationConstants.BlogPost.TitleMaxLength);
 
         builder.ConfigureSlug(bp => bp.Slug);
 
@@ -25,15 +26,15 @@ public sealed class BlogPostConfiguration : IEntityTypeConfiguration<BlogPost>
             .IsRequired();
 
         builder.Property(bp => bp.Excerpt)
-            .HasMaxLength(500);
+            .HasMaxLength(ValidationConstants.BlogPost.ExcerptMaxLength);
 
         builder.Property(bp => bp.FeaturedImage)
-            .HasMaxLength(2048);
+            .HasMaxLength(ValidationConstants.BlogPost.FeaturedImageMaxLength);
 
         builder.Property(bp => bp.Status)
             .IsRequired()
             .HasConversion<string>()
-            .HasMaxLength(20);
+            .HasMaxLength(ValidationConstants.BlogPost.StatusMaxLength);
 
         builder.Property(bp => bp.PublishedAt);
 
@@ -47,23 +48,23 @@ public sealed class BlogPostConfiguration : IEntityTypeConfiguration<BlogPost>
         {
             metaBuilder.Property(m => m.Title)
                 .HasColumnName("MetaTitle")
-                .HasMaxLength(60);
+                .HasMaxLength(ValidationConstants.MetaData.TitleMaxLength);
 
             metaBuilder.Property(m => m.Description)
                 .HasColumnName("MetaDescription")
-                .HasMaxLength(160);
+                .HasMaxLength(ValidationConstants.MetaData.DescriptionMaxLength);
 
             metaBuilder.Property(m => m.Keywords)
                 .HasColumnName("MetaKeywords")
-                .HasMaxLength(200);
+                .HasMaxLength(ValidationConstants.MetaData.KeywordsMaxLength);
 
             metaBuilder.Property(m => m.CanonicalUrl)
                 .HasColumnName("CanonicalUrl")
-                .HasMaxLength(2048);
+                .HasMaxLength(ValidationConstants.MetaData.CanonicalUrlMaxLength);
 
             metaBuilder.Property(m => m.OgImage)
                 .HasColumnName("OgImage")
-                .HasMaxLength(2048);
+                .HasMaxLength(ValidationConstants.MetaData.OgImageMaxLength);
         });
 
         builder.ConfigureAuditTimestamps();
