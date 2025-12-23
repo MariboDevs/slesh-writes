@@ -136,12 +136,28 @@ public class PostMetaDataTests
         var original = PostMetaData.Create("Original", "Desc", null, null, null).Value;
 
         // Act
-        var updated = original.WithTitle("Updated");
+        var result = original.WithTitle("Updated");
 
         // Assert
-        updated.Title.Should().Be("Updated");
-        updated.Description.Should().Be("Desc");
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Title.Should().Be("Updated");
+        result.Value.Description.Should().Be("Desc");
         original.Title.Should().Be("Original");
+    }
+
+    [Fact]
+    public void WithTitle_WithInvalidTitle_ReturnsFailure()
+    {
+        // Arrange
+        var original = PostMetaData.Create("Original", "Desc", null, null, null).Value;
+        var longTitle = new string('a', 61);
+
+        // Act
+        var result = original.WithTitle(longTitle);
+
+        // Assert
+        result.IsFailure.Should().BeTrue();
+        result.Error.Should().Contain("60 characters");
     }
 
     [Fact]
@@ -151,11 +167,27 @@ public class PostMetaDataTests
         var original = PostMetaData.Create("Title", "Original", null, null, null).Value;
 
         // Act
-        var updated = original.WithDescription("Updated");
+        var result = original.WithDescription("Updated");
 
         // Assert
-        updated.Description.Should().Be("Updated");
-        updated.Title.Should().Be("Title");
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Description.Should().Be("Updated");
+        result.Value.Title.Should().Be("Title");
         original.Description.Should().Be("Original");
+    }
+
+    [Fact]
+    public void WithDescription_WithInvalidDescription_ReturnsFailure()
+    {
+        // Arrange
+        var original = PostMetaData.Create("Title", "Original", null, null, null).Value;
+        var longDescription = new string('a', 161);
+
+        // Act
+        var result = original.WithDescription(longDescription);
+
+        // Assert
+        result.IsFailure.Should().BeTrue();
+        result.Error.Should().Contain("160 characters");
     }
 }

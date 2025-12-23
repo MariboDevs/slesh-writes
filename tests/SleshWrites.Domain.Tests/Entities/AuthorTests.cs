@@ -123,24 +123,26 @@ public class AuthorTests
         var author = Author.Create(ValidAzureAdB2CId, ValidDisplayName).Value;
 
         // Act
-        author.UpdateBio("This is my bio.");
+        var result = author.UpdateBio("This is my bio.");
 
         // Assert
+        result.IsSuccess.Should().BeTrue();
         author.Bio.Should().Be("This is my bio.");
     }
 
     [Fact]
-    public void UpdateBio_WithLongBio_TruncatesTo1000()
+    public void UpdateBio_WithLongBio_ReturnsFailure()
     {
         // Arrange
         var author = Author.Create(ValidAzureAdB2CId, ValidDisplayName).Value;
-        var longBio = new string('a', 1500);
+        var longBio = new string('a', 1001);
 
         // Act
-        author.UpdateBio(longBio);
+        var result = author.UpdateBio(longBio);
 
         // Assert
-        author.Bio.Should().HaveLength(1000);
+        result.IsFailure.Should().BeTrue();
+        result.Error.Should().Contain("1000 characters");
     }
 
     [Fact]
@@ -179,36 +181,56 @@ public class AuthorTests
         var author = Author.Create(ValidAzureAdB2CId, ValidDisplayName).Value;
 
         // Act
-        author.AddSocialLink("Twitter", "https://twitter.com/johndoe");
+        var result = author.AddSocialLink("Twitter", "https://twitter.com/johndoe");
 
         // Assert
+        result.IsSuccess.Should().BeTrue();
         author.SocialLinks.Should().ContainKey("twitter");
         author.SocialLinks["twitter"].Should().Be("https://twitter.com/johndoe");
     }
 
     [Fact]
-    public void AddSocialLink_WithEmptyPlatform_DoesNotAdd()
+    public void AddSocialLink_WithEmptyPlatform_ReturnsFailure()
     {
         // Arrange
         var author = Author.Create(ValidAzureAdB2CId, ValidDisplayName).Value;
 
         // Act
-        author.AddSocialLink("", "https://twitter.com/johndoe");
+        var result = author.AddSocialLink("", "https://twitter.com/johndoe");
 
         // Assert
+        result.IsFailure.Should().BeTrue();
+        result.Error.Should().Contain("Platform cannot be empty");
         author.SocialLinks.Should().BeEmpty();
     }
 
     [Fact]
-    public void AddSocialLink_WithEmptyUrl_DoesNotAdd()
+    public void AddSocialLink_WithEmptyUrl_ReturnsFailure()
     {
         // Arrange
         var author = Author.Create(ValidAzureAdB2CId, ValidDisplayName).Value;
 
         // Act
-        author.AddSocialLink("Twitter", "");
+        var result = author.AddSocialLink("Twitter", "");
 
         // Assert
+        result.IsFailure.Should().BeTrue();
+        result.Error.Should().Contain("URL cannot be empty");
+        author.SocialLinks.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void AddSocialLink_WithInvalidUrl_ReturnsFailure()
+    {
+        // Arrange
+        var author = Author.Create(ValidAzureAdB2CId, ValidDisplayName).Value;
+
+        // Act
+        var result = author.AddSocialLink("Twitter", "not-a-valid-url");
+
+        // Assert
+        result.IsFailure.Should().BeTrue();
+        result.Error.Should().Contain("valid absolute URL");
         author.SocialLinks.Should().BeEmpty();
     }
 
@@ -220,9 +242,10 @@ public class AuthorTests
         author.AddSocialLink("Twitter", "https://twitter.com/johndoe");
 
         // Act
-        author.AddSocialLink("Twitter", "https://twitter.com/janedoe");
+        var result = author.AddSocialLink("Twitter", "https://twitter.com/janedoe");
 
         // Assert
+        result.IsSuccess.Should().BeTrue();
         author.SocialLinks["twitter"].Should().Be("https://twitter.com/janedoe");
     }
 
@@ -234,23 +257,39 @@ public class AuthorTests
         author.AddSocialLink("Twitter", "https://twitter.com/johndoe");
 
         // Act
-        author.RemoveSocialLink("Twitter");
+        var result = author.RemoveSocialLink("Twitter");
 
         // Assert
+        result.IsSuccess.Should().BeTrue();
         author.SocialLinks.Should().BeEmpty();
     }
 
     [Fact]
-    public void RemoveSocialLink_WithNonExistingPlatform_DoesNothing()
+    public void RemoveSocialLink_WithNonExistingPlatform_Succeeds()
     {
         // Arrange
         var author = Author.Create(ValidAzureAdB2CId, ValidDisplayName).Value;
         author.AddSocialLink("Twitter", "https://twitter.com/johndoe");
 
         // Act
-        author.RemoveSocialLink("LinkedIn");
+        var result = author.RemoveSocialLink("LinkedIn");
 
         // Assert
+        result.IsSuccess.Should().BeTrue();
         author.SocialLinks.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void RemoveSocialLink_WithEmptyPlatform_ReturnsFailure()
+    {
+        // Arrange
+        var author = Author.Create(ValidAzureAdB2CId, ValidDisplayName).Value;
+
+        // Act
+        var result = author.RemoveSocialLink("");
+
+        // Assert
+        result.IsFailure.Should().BeTrue();
+        result.Error.Should().Contain("Platform cannot be empty");
     }
 }

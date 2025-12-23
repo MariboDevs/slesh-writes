@@ -384,22 +384,25 @@ public class BlogPostTests
         var newCategoryId = Guid.NewGuid();
 
         // Act
-        post.UpdateCategory(newCategoryId);
+        var result = post.UpdateCategory(newCategoryId);
 
         // Assert
+        result.IsSuccess.Should().BeTrue();
         post.CategoryId.Should().Be(newCategoryId);
     }
 
     [Fact]
-    public void UpdateCategory_WithEmptyId_DoesNotUpdate()
+    public void UpdateCategory_WithEmptyId_ReturnsFailure()
     {
         // Arrange
         var post = BlogPost.Create(ValidTitle, ValidContent, _validAuthorId, _validCategoryId).Value;
 
         // Act
-        post.UpdateCategory(Guid.Empty);
+        var result = post.UpdateCategory(Guid.Empty);
 
         // Assert
+        result.IsFailure.Should().BeTrue();
+        result.Error.Should().Contain("Category ID cannot be empty");
         post.CategoryId.Should().Be(_validCategoryId);
     }
 }

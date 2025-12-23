@@ -68,16 +68,44 @@ public sealed class PostMetaData : ValueObject
 
     public static PostMetaData Empty() => new(null, null, null, null, null);
 
-    public PostMetaData WithTitle(string? title)
+    /// <summary>
+    /// Creates a new PostMetaData with the specified title.
+    /// </summary>
+    public Result<PostMetaData> WithTitle(string? title)
     {
-        var result = Create(title, Description, Keywords, CanonicalUrl, OgImage);
-        return result.IsSuccess ? result.Value : this;
+        return Create(title, Description, Keywords, CanonicalUrl, OgImage);
     }
 
-    public PostMetaData WithDescription(string? description)
+    /// <summary>
+    /// Creates a new PostMetaData with the specified description.
+    /// </summary>
+    public Result<PostMetaData> WithDescription(string? description)
     {
-        var result = Create(Title, description, Keywords, CanonicalUrl, OgImage);
-        return result.IsSuccess ? result.Value : this;
+        return Create(Title, description, Keywords, CanonicalUrl, OgImage);
+    }
+
+    /// <summary>
+    /// Creates a new PostMetaData with the specified keywords.
+    /// </summary>
+    public Result<PostMetaData> WithKeywords(string? keywords)
+    {
+        return Create(Title, Description, keywords, CanonicalUrl, OgImage);
+    }
+
+    /// <summary>
+    /// Creates a new PostMetaData with the specified canonical URL.
+    /// </summary>
+    public Result<PostMetaData> WithCanonicalUrl(string? canonicalUrl)
+    {
+        return Create(Title, Description, Keywords, canonicalUrl, OgImage);
+    }
+
+    /// <summary>
+    /// Creates a new PostMetaData with the specified Open Graph image.
+    /// </summary>
+    public Result<PostMetaData> WithOgImage(string? ogImage)
+    {
+        return Create(Title, Description, Keywords, CanonicalUrl, ogImage);
     }
 
     protected override IEnumerable<object?> GetEqualityComponents()

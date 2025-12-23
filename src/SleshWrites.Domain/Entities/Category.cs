@@ -59,15 +59,23 @@ public sealed class Category : Entity
         return Result.Success();
     }
 
-    public void UpdateDescription(string? description)
+    public Result UpdateDescription(string? description)
     {
-        Description = description?.Length > 500 ? description[..500] : description;
+        if (description is not null && description.Length > 500)
+            return Result.Failure("Category description cannot exceed 500 characters.");
+
+        Description = description;
         SetUpdatedAt();
+        return Result.Success();
     }
 
-    public void UpdateDisplayOrder(int displayOrder)
+    public Result UpdateDisplayOrder(int displayOrder)
     {
+        if (displayOrder < 0)
+            return Result.Failure("Display order cannot be negative.");
+
         DisplayOrder = displayOrder;
         SetUpdatedAt();
+        return Result.Success();
     }
 }

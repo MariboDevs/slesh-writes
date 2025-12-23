@@ -173,13 +173,14 @@ public sealed class BlogPost : Entity, IAggregateRoot
     /// <summary>
     /// Updates the category of the blog post.
     /// </summary>
-    public void UpdateCategory(Guid categoryId)
+    public Result UpdateCategory(Guid categoryId)
     {
         if (categoryId == Guid.Empty)
-            return;
+            return Result.Failure("Category ID cannot be empty.");
 
         CategoryId = categoryId;
         SetUpdatedAt();
+        return Result.Success();
     }
 
     /// <summary>

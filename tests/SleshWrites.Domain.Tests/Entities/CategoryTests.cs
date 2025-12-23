@@ -107,24 +107,26 @@ public class CategoryTests
         var category = Category.Create("Technology").Value;
 
         // Act
-        category.UpdateDescription("New description");
+        var result = category.UpdateDescription("New description");
 
         // Assert
+        result.IsSuccess.Should().BeTrue();
         category.Description.Should().Be("New description");
     }
 
     [Fact]
-    public void UpdateDescription_WithLongDescription_TruncatesTo500()
+    public void UpdateDescription_WithLongDescription_ReturnsFailure()
     {
         // Arrange
         var category = Category.Create("Technology").Value;
-        var longDescription = new string('a', 600);
+        var longDescription = new string('a', 501);
 
         // Act
-        category.UpdateDescription(longDescription);
+        var result = category.UpdateDescription(longDescription);
 
         // Assert
-        category.Description.Should().HaveLength(500);
+        result.IsFailure.Should().BeTrue();
+        result.Error.Should().Contain("500 characters");
     }
 
     [Fact]
@@ -134,9 +136,24 @@ public class CategoryTests
         var category = Category.Create("Technology").Value;
 
         // Act
-        category.UpdateDisplayOrder(5);
+        var result = category.UpdateDisplayOrder(5);
 
         // Assert
+        result.IsSuccess.Should().BeTrue();
         category.DisplayOrder.Should().Be(5);
+    }
+
+    [Fact]
+    public void UpdateDisplayOrder_WithNegativeValue_ReturnsFailure()
+    {
+        // Arrange
+        var category = Category.Create("Technology").Value;
+
+        // Act
+        var result = category.UpdateDisplayOrder(-1);
+
+        // Assert
+        result.IsFailure.Should().BeTrue();
+        result.Error.Should().Contain("negative");
     }
 }

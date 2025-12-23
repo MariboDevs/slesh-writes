@@ -43,12 +43,17 @@ public sealed partial class Slug : ValueObject
     /// <summary>
     /// Creates a Slug from a pre-validated slug string (e.g., from database).
     /// </summary>
-    public static Slug FromExisting(string slug)
+    /// <param name="slug">The pre-validated slug string.</param>
+    /// <returns>A Result containing the Slug if valid, or an error message if invalid.</returns>
+    public static Result<Slug> FromExisting(string slug)
     {
         if (string.IsNullOrWhiteSpace(slug))
-            throw new ArgumentException("Slug cannot be empty.", nameof(slug));
+            return Result.Failure<Slug>("Slug cannot be empty.");
 
-        return new Slug(slug);
+        if (!SlugRegex().IsMatch(slug))
+            return Result.Failure<Slug>("Invalid slug format. Slug must contain only lowercase letters, numbers, and hyphens.");
+
+        return Result.Success(new Slug(slug));
     }
 
     private static string GenerateSlug(string input)

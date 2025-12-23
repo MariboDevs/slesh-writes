@@ -55,10 +55,14 @@ public sealed class Author : Entity
         return Result.Success();
     }
 
-    public void UpdateBio(string? bio)
+    public Result UpdateBio(string? bio)
     {
-        Bio = bio?.Length > 1000 ? bio[..1000] : bio;
+        if (bio is not null && bio.Length > 1000)
+            return Result.Failure("Bio cannot exceed 1000 characters.");
+
+        Bio = bio;
         SetUpdatedAt();
+        return Result.Success();
     }
 
     public Result UpdateAvatarUrl(string? avatarUrl)
@@ -71,18 +75,29 @@ public sealed class Author : Entity
         return Result.Success();
     }
 
-    public void AddSocialLink(string platform, string url)
+    public Result AddSocialLink(string platform, string url)
     {
-        if (string.IsNullOrWhiteSpace(platform) || string.IsNullOrWhiteSpace(url))
-            return;
+        if (string.IsNullOrWhiteSpace(platform))
+            return Result.Failure("Platform cannot be empty.");
+
+        if (string.IsNullOrWhiteSpace(url))
+            return Result.Failure("URL cannot be empty.");
+
+        if (!Uri.TryCreate(url, UriKind.Absolute, out _))
+            return Result.Failure("Social link URL must be a valid absolute URL.");
 
         _socialLinks[platform.ToLowerInvariant()] = url;
         SetUpdatedAt();
+        return Result.Success();
     }
 
-    public void RemoveSocialLink(string platform)
+    public Result RemoveSocialLink(string platform)
     {
-        if (_socialLinks.Remove(platform.ToLowerInvariant()))
-            SetUpdatedAt();
+        if (string.IsNullOrWhiteSpace(platform))
+            return Result.Failure("Platform cannot be empty.");
+
+        _socialLinks.Remove(platform.ToLowerInvariant());
+        SetUpdatedAt();
+        return Result.Success();
     }
 }
