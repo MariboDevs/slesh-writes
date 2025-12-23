@@ -19,24 +19,10 @@ public sealed class TagConfiguration : IEntityTypeConfiguration<Tag>
             .IsRequired()
             .HasMaxLength(50);
 
-        builder.OwnsOne(t => t.Slug, slugBuilder =>
-        {
-            slugBuilder.Property(s => s.Value)
-                .HasColumnName("Slug")
-                .IsRequired()
-                .HasMaxLength(200);
+        builder.ConfigureSlug(t => t.Slug);
 
-            slugBuilder.HasIndex(s => s.Value)
-                .IsUnique();
-        });
+        builder.ConfigureAuditTimestamps();
 
-        builder.Property(t => t.CreatedAt)
-            .IsRequired();
-
-        builder.Property(t => t.UpdatedAt)
-            .IsRequired();
-
-        // Ignore domain events
-        builder.Ignore(t => t.DomainEvents);
+        builder.IgnoreDomainEvents();
     }
 }

@@ -19,16 +19,7 @@ public sealed class CategoryConfiguration : IEntityTypeConfiguration<Category>
             .IsRequired()
             .HasMaxLength(100);
 
-        builder.OwnsOne(c => c.Slug, slugBuilder =>
-        {
-            slugBuilder.Property(s => s.Value)
-                .HasColumnName("Slug")
-                .IsRequired()
-                .HasMaxLength(200);
-
-            slugBuilder.HasIndex(s => s.Value)
-                .IsUnique();
-        });
+        builder.ConfigureSlug(c => c.Slug);
 
         builder.Property(c => c.Description)
             .HasMaxLength(500);
@@ -36,16 +27,11 @@ public sealed class CategoryConfiguration : IEntityTypeConfiguration<Category>
         builder.Property(c => c.DisplayOrder)
             .IsRequired();
 
-        builder.Property(c => c.CreatedAt)
-            .IsRequired();
-
-        builder.Property(c => c.UpdatedAt)
-            .IsRequired();
+        builder.ConfigureAuditTimestamps();
 
         builder.HasIndex(c => c.DisplayOrder)
             .HasDatabaseName("IX_Categories_DisplayOrder");
 
-        // Ignore domain events
-        builder.Ignore(c => c.DomainEvents);
+        builder.IgnoreDomainEvents();
     }
 }

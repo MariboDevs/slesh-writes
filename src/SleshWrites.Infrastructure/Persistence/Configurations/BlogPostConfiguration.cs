@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SleshWrites.Domain.Entities;
-using SleshWrites.Domain.Enums;
 
 namespace SleshWrites.Infrastructure.Persistence.Configurations;
 
@@ -20,16 +19,7 @@ public sealed class BlogPostConfiguration : IEntityTypeConfiguration<BlogPost>
             .IsRequired()
             .HasMaxLength(200);
 
-        builder.OwnsOne(bp => bp.Slug, slugBuilder =>
-        {
-            slugBuilder.Property(s => s.Value)
-                .HasColumnName("Slug")
-                .IsRequired()
-                .HasMaxLength(200);
-
-            slugBuilder.HasIndex(s => s.Value)
-                .IsUnique();
-        });
+        builder.ConfigureSlug(bp => bp.Slug);
 
         builder.Property(bp => bp.Content)
             .IsRequired();
@@ -76,11 +66,7 @@ public sealed class BlogPostConfiguration : IEntityTypeConfiguration<BlogPost>
                 .HasMaxLength(2048);
         });
 
-        builder.Property(bp => bp.CreatedAt)
-            .IsRequired();
-
-        builder.Property(bp => bp.UpdatedAt)
-            .IsRequired();
+        builder.ConfigureAuditTimestamps();
 
         // Many-to-many relationship with Tags
         builder.HasMany(bp => bp.Tags)
@@ -111,7 +97,6 @@ public sealed class BlogPostConfiguration : IEntityTypeConfiguration<BlogPost>
         builder.HasIndex(bp => bp.CategoryId)
             .HasDatabaseName("IX_BlogPosts_CategoryId");
 
-        // Ignore domain events
-        builder.Ignore(bp => bp.DomainEvents);
+        builder.IgnoreDomainEvents();
     }
 }

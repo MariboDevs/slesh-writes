@@ -1,6 +1,7 @@
 using FluentAssertions;
 using SleshWrites.Domain.Entities;
 using SleshWrites.Infrastructure.Persistence;
+using SleshWrites.Infrastructure.Persistence.Repositories;
 
 namespace SleshWrites.Infrastructure.Tests.Persistence;
 
@@ -12,7 +13,19 @@ public class UnitOfWorkTests : IDisposable
     public UnitOfWorkTests()
     {
         _context = TestDbContextFactory.Create();
-        _unitOfWork = new UnitOfWork(_context);
+
+        // Create repositories for the UnitOfWork
+        var blogPostRepository = new BlogPostRepository(_context);
+        var categoryRepository = new CategoryRepository(_context);
+        var tagRepository = new TagRepository(_context);
+        var authorRepository = new AuthorRepository(_context);
+
+        _unitOfWork = new UnitOfWork(
+            _context,
+            blogPostRepository,
+            categoryRepository,
+            tagRepository,
+            authorRepository);
     }
 
     [Fact]
@@ -102,14 +115,48 @@ public class UnitOfWorkTests : IDisposable
     }
 
     [Fact]
-    public void Repositories_AreCached()
+    public async Task BeginTransactionAsync_ReturnsSuccess()
     {
         // Act
-        var blogPosts1 = _unitOfWork.BlogPosts;
-        var blogPosts2 = _unitOfWork.BlogPosts;
+        var result = await _unitOfWork.BeginTransactionAsync();
 
         // Assert
-        blogPosts1.Should().BeSameAs(blogPosts2);
+        result.IsSuccess.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task BeginTransactionAsync_WhenAlreadyStarted_ReturnsFailure()
+    {
+        // Arrange
+        await _unitOfWork.BeginTransactionAsync();
+
+        // Act
+        var result = await _unitOfWork.BeginTransactionAsync();
+
+        // Assert
+        result.IsFailure.Should().BeTrue();
+        result.Error.Should().Contain("already in progress");
+    }
+
+    [Fact]
+    public async Task CommitTransactionAsync_WithoutTransaction_ReturnsFailure()
+    {
+        // Act
+        var result = await _unitOfWork.CommitTransactionAsync();
+
+        // Assert
+        result.IsFailure.Should().BeTrue();
+        result.Error.Should().Contain("No transaction");
+    }
+
+    [Fact]
+    public async Task RollbackTransactionAsync_WithoutTransaction_ReturnsSuccess()
+    {
+        // Act
+        var result = await _unitOfWork.RollbackTransactionAsync();
+
+        // Assert - rollback of nothing is considered success
+        result.IsSuccess.Should().BeTrue();
     }
 
     public void Dispose()

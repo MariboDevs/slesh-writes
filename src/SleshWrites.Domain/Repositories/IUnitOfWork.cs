@@ -1,3 +1,5 @@
+using SleshWrites.Domain.Common;
+
 namespace SleshWrites.Domain.Repositories;
 
 /// <summary>
@@ -11,7 +13,7 @@ public interface IUnitOfWork : IDisposable
     IAuthorRepository Authors { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
-    Task BeginTransactionAsync(CancellationToken cancellationToken = default);
-    Task CommitTransactionAsync(CancellationToken cancellationToken = default);
-    Task RollbackTransactionAsync(CancellationToken cancellationToken = default);
+    Task<Result> BeginTransactionAsync(CancellationToken cancellationToken = default);
+    Task<Result> CommitTransactionAsync(CancellationToken cancellationToken = default);
+    Task<Result> RollbackTransactionAsync(CancellationToken cancellationToken = default);
 }

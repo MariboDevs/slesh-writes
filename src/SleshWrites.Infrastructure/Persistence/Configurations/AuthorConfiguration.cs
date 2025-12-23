@@ -53,13 +53,8 @@ public sealed class AuthorConfiguration : IEntityTypeConfiguration<Author>
         builder.Property(a => a.SocialLinks)
             .HasColumnType("nvarchar(max)");
 
-        builder.Property(a => a.CreatedAt)
-            .IsRequired();
+        builder.ConfigureAuditTimestamps();
 
-        builder.Property(a => a.UpdatedAt)
-            .IsRequired();
-
-        // Ignore domain events
-        builder.Ignore(a => a.DomainEvents);
+        builder.IgnoreDomainEvents();
     }
 }

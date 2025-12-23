@@ -1,11 +1,12 @@
 using Microsoft.EntityFrameworkCore.Storage;
+using SleshWrites.Domain.Common;
 using SleshWrites.Domain.Repositories;
-using SleshWrites.Infrastructure.Persistence.Repositories;
 
 namespace SleshWrites.Infrastructure.Persistence;
 
 /// <summary>
 /// Unit of Work implementation for coordinating repository operations.
+/// Repositories are injected via DI to follow Dependency Inversion Principle.
 /// </summary>
 public sealed class UnitOfWork : IUnitOfWork
 {
@@ -13,59 +14,65 @@ public sealed class UnitOfWork : IUnitOfWork
     private IDbContextTransaction? _currentTransaction;
     private bool _disposed;
 
-    private IBlogPostRepository? _blogPosts;
-    private ICategoryRepository? _categories;
-    private ITagRepository? _tags;
-    private IAuthorRepository? _authors;
+    public IBlogPostRepository BlogPosts { get; }
+    public ICategoryRepository Categories { get; }
+    public ITagRepository Tags { get; }
+    public IAuthorRepository Authors { get; }
 
-    public UnitOfWork(SleshWritesDbContext context)
+    public UnitOfWork(
+        SleshWritesDbContext context,
+        IBlogPostRepository blogPosts,
+        ICategoryRepository categories,
+        ITagRepository tags,
+        IAuthorRepository authors)
     {
         _context = context;
+        BlogPosts = blogPosts;
+        Categories = categories;
+        Tags = tags;
+        Authors = authors;
     }
-
-    public IBlogPostRepository BlogPosts =>
-        _blogPosts ??= new BlogPostRepository(_context);
-
-    public ICategoryRepository Categories =>
-        _categories ??= new CategoryRepository(_context);
-
-    public ITagRepository Tags =>
-        _tags ??= new TagRepository(_context);
-
-    public IAuthorRepository Authors =>
-        _authors ??= new AuthorRepository(_context);
 
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         return await _context.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task BeginTransactionAsync(CancellationToken cancellationToken = default)
+    public async Task<Result> BeginTransactionAsync(CancellationToken cancellationToken = default)
     {
         if (_currentTransaction is not null)
         {
-            return;
+            return Result.Failure("A transaction is already in progress.");
         }
 
-        _currentTransaction = await _context.Database.BeginTransactionAsync(cancellationToken);
+        try
+        {
+            _currentTransaction = await _context.Database.BeginTransactionAsync(cancellationToken);
+            return Result.Success();
+        }
+        catch (Exception ex)
+        {
+            return Result.Failure($"Failed to begin transaction: {ex.Message}");
+        }
     }
 
-    public async Task CommitTransactionAsync(CancellationToken cancellationToken = default)
+    public async Task<Result> CommitTransactionAsync(CancellationToken cancellationToken = default)
     {
         if (_currentTransaction is null)
         {
-            throw new InvalidOperationException("No transaction has been started.");
+            return Result.Failure("No transaction has been started.");
         }
 
         try
         {
             await _context.SaveChangesAsync(cancellationToken);
             await _currentTransaction.CommitAsync(cancellationToken);
+            return Result.Success();
         }
-        catch
+        catch (Exception ex)
         {
             await RollbackTransactionAsync(cancellationToken);
-            throw;
+            return Result.Failure($"Transaction commit failed: {ex.Message}");
         }
         finally
         {
@@ -73,16 +80,21 @@ public sealed class UnitOfWork : IUnitOfWork
         }
     }
 
-    public async Task RollbackTransactionAsync(CancellationToken cancellationToken = default)
+    public async Task<Result> RollbackTransactionAsync(CancellationToken cancellationToken = default)
     {
         if (_currentTransaction is null)
         {
-            return;
+            return Result.Success(); // Nothing to rollback
         }
 
         try
         {
             await _currentTransaction.RollbackAsync(cancellationToken);
+            return Result.Success();
+        }
+        catch (Exception ex)
+        {
+            return Result.Failure($"Transaction rollback failed: {ex.Message}");
         }
         finally
         {
